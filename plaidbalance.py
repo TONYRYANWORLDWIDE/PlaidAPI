@@ -36,8 +36,3 @@ def getBalance(access_token):
     except plaid.errors.PlaidError as e:
         return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
     
-balances = getBalance(chase_access_token)
-for x in balances:
-    if x['name'] == 'TOTAL CHECKING':
-        bankbalance = x['balances']['available']
-        print(bankbalance)
