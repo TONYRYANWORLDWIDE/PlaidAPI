@@ -48,7 +48,11 @@ def getBalance(access_token):
     except plaid.errors.PlaidError as e:
         return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
     
-
+# def getTransactions()
+#   start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+#   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
+#   try:
+#     transactions_response = client.Transactions.get(access_token, start_date, end_date)
 
 balances = getBalance(chase_access_token)
 for x in balances:
