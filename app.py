@@ -44,7 +44,13 @@ client = plaid.Client(client_id = PLAID_CLIENT_ID, secret=PLAID_SECRET,
 def getBalance(access_token):
     try:
         balance_response = client.Accounts.balance.get(access_token)
-        return balance_response['accounts']
+        balances = balance_response['accounts']
+        for x in balances:
+            if x['name'] == 'TOTAL CHECKING':
+                bankbalance = x['balances']['available']
+                print(bankbalance)
+        return bankbalance
+        # return balance_response['accounts']
     except plaid.errors.PlaidError as e:
         return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
     
@@ -54,11 +60,11 @@ def getBalance(access_token):
 #   try:
 #     transactions_response = client.Transactions.get(access_token, start_date, end_date)
 
-balances = getBalance(chase_access_token)
-for x in balances:
-    if x['name'] == 'TOTAL CHECKING':
-        bankbalance = x['balances']['available']
-        print(bankbalance)
+bankbalance = getBalance(chase_access_token)
+# for x in balances:
+#     if x['name'] == 'TOTAL CHECKING':
+#         bankbalance = x['balances']['available']
+#         print(bankbalance)
 
 
 credentials_file = 'C:/Users/tonyr/Desktop/PlaidAPIFinal/credentials.json'
@@ -87,7 +93,6 @@ params = urllib.parse.quote_plus("DRIVER={ODBC Driver 17 for SQL Server};"
                                  "PWD=" + password)
 
 engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
-
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
 balance = session.query(BankBalance).filter_by(UserID = userid).one()
