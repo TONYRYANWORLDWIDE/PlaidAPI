@@ -61,14 +61,6 @@ def getBalance(access_token):
 #     transactions_response = client.Transactions.get(access_token, start_date, end_date)
 
 bankbalance = getBalance(chase_access_token)
-# for x in balances:
-#     if x['name'] == 'TOTAL CHECKING':
-#         bankbalance = x['balances']['available']
-#         print(bankbalance)
-
-
-credentials_file = 'C:/Users/tonyr/Desktop/PlaidAPIFinal/credentials.json'
-
 
 def getConnection():
     with open(credentials_file) as json_file:
