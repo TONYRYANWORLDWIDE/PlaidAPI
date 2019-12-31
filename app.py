@@ -32,12 +32,8 @@ def getplaid():
                 data['codes']['plaid']['chase_access_token']
     
 PLAID_CLIENT_ID,PLAID_SECRET,PLAID_PUBLIC_KEY,chase_access_token = getplaid()
-
+print("ac:" +chase_access_token)
 PLAID_ENV = os.getenv('PLAID_ENV', 'development')
-PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions')
-PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US,CA,GB,FR,ES')
-
-
 client = plaid.Client(client_id = PLAID_CLIENT_ID, secret=PLAID_SECRET,
                       public_key=PLAID_PUBLIC_KEY, environment=PLAID_ENV, api_version='2019-05-29')
 
