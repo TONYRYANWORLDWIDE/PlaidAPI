@@ -73,21 +73,37 @@ class PlaidBalance():
             return self
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
+    def getTransactions(self):
+        PlaidCredentials = getPlaid()
+        credentials = PlaidCredentials.getCredentials()
+        chase_access_token = credentials.chase_access_token
+
+        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-60))
+        end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
+        print('start date:{} , end date{}'.format(start_date,end_date))
+        try:
+            transactions_response = credentials.client.Transactions.get(credentials.chase_access_token, start_date, end_date)
+            # transactions = response['transactions']
+            return transactions_response
+        except plaid.errors.PlaidError as e:
+            return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
 class updateBankBalanceInDatabase():
 
     def databaseUpdate(self):
         gp = getPlaid()
         plaidCredentials = gp.getCredentials()
         pb = PlaidBalance()
-        pbalance = pb.getBalance() 
-        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(plaidCredentials.params))
-        DBSession = sessionmaker(bind = engine)    
-        session = DBSession()
-        bankbalance = session.query(models.BankBalance).filter_by(UserID = plaidCredentials.userid).one()
-        bankbalance.KeyBalance = pbalance.chasebalance
-        bankbalance.DateTime = datetime.datetime.now()
-        session.add(bankbalance)
-        session.commit()
+        # pbalance = pb.getBalance() 
+        trans = pb.getTransactions()
+        print(trans)
+        # engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(plaidCredentials.params))
+        # DBSession = sessionmaker(bind = engine)    
+        # session = DBSession()
+        # bankbalance = session.query(models.BankBalance).filter_by(UserID = plaidCredentials.userid).one()
+        # bankbalance.KeyBalance = pbalance.chasebalance
+        # bankbalance.DateTime = datetime.datetime.now()
+        # session.add(bankbalance)
+        # session.commit()
 
 def main():
     x = updateBankBalanceInDatabase()
