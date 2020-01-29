@@ -78,7 +78,7 @@ class PlaidBalance():
         credentials = PlaidCredentials.getCredentials()
         chase_access_token = credentials.chase_access_token
 
-        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-60))
+        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-1))
         end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
         print('start date:{} , end date{}'.format(start_date,end_date))
         try:
@@ -95,7 +95,8 @@ class updateBankBalanceInDatabase():
         pb = PlaidBalance()
         # pbalance = pb.getBalance() 
         trans = pb.getTransactions()
-        print(trans)
+        # print(trans)
+        
         # engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(plaidCredentials.params))
         # DBSession = sessionmaker(bind = engine)    
         # session = DBSession()
@@ -104,9 +105,14 @@ class updateBankBalanceInDatabase():
         # bankbalance.DateTime = datetime.datetime.now()
         # session.add(bankbalance)
         # session.commit()
-
+        return trans
 def main():
     x = updateBankBalanceInDatabase()
-    x.databaseUpdate()
+    thetrans = x.databaseUpdate()
+    print(thetrans)
+    
+    # print(thetrans['accounts'])
+
+
 
 main()
