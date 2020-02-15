@@ -88,31 +88,55 @@ class PlaidBalance():
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
 class updateBankBalanceInDatabase():
-
+    
     def databaseUpdate(self):
         gp = getPlaid()
         plaidCredentials = gp.getCredentials()
         pb = PlaidBalance()
-        # pbalance = pb.getBalance() 
-        trans = pb.getTransactions()
-        # print(trans)
-        
-        # engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(plaidCredentials.params))
-        # DBSession = sessionmaker(bind = engine)    
+        pbalance = pb.getBalance() 
+        trans = pb.getTransactions()        
+        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(plaidCredentials.params))
+        DBSession = sessionmaker(bind = engine)    
         # session = DBSession()
         # bankbalance = session.query(models.BankBalance).filter_by(UserID = plaidCredentials.userid).one()
         # bankbalance.KeyBalance = pbalance.chasebalance
         # bankbalance.DateTime = datetime.datetime.now()
         # session.add(bankbalance)
         # session.commit()
-        return trans
+        
+        transactions = trans['transactions']
+        for i in transactions:
+            trans = models.Transactions(**i)
+            # print(trans.category)
+            category_to_string = ' '.join([str(elem) for elem in trans.category])   
+            trans.category = category_to_string
+
+            location_to_string = ' '.join([str(elem) for elem in trans.location])   
+            trans.location = location_to_string
+
+            
+            payment_meta_to_string = ' '.join([str(elem) for elem in trans.payment_meta])   
+            trans.payment_meta = payment_meta_to_string
+            # print(i)
+
+            # print(i)
+            session = DBSession()
+            # print('trans.date is {}',trans.date)
+            # print('trans.amount is {}',trans.amount)
+            session.add(trans)
+            session.commit()
+
+        
+        # return trans
 def main():
     x = updateBankBalanceInDatabase()
-    thetrans = x.databaseUpdate()
-    print(thetrans)
-    
-    # print(thetrans['accounts'])
-
-
+    x.databaseUpdate()   
+    # transactions = thetrans['transactions']
+    # for i in transactions:
+    #     trans = models.Transactions(**i)
+    #     print(i)
+    #     print('trans.date is {}',trans.date)
+    #     print('trans.amount is {}',trans.amount)
+        
 
 main()

@@ -1,2 +1,4 @@
 *.json
 *.bat
+.vs/PlaidAPIFInal/v16/.suo
+PlaidAzureFunction/
