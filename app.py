@@ -73,6 +73,9 @@ class PlaidBalance():
             return self
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
+
+class PlaidTransactions():
+
     def getTransactions(self):
         PlaidCredentials = getPlaid()
         credentials = PlaidCredentials.getCredentials()
@@ -86,27 +89,37 @@ class PlaidBalance():
             return transactions_response
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-class updateBankBalanceInDatabase():
+class updateDatabse():
+
+
+    PlaidCredentials = getPlaid()
+    credentials = PlaidCredentials.getCredentials()
     
-    def databaseUpdate(self):
-        gp = getPlaid()
-        plaidCredentials = gp.getCredentials()
+    def databaseUpdateBalance(self):
+        # gp = getPlaid()
+        # plaidCredentials = gp.getCredentials()
         pb = PlaidBalance()
         pbalance = pb.getBalance() 
-        trans = pb.getTransactions()        
-        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(plaidCredentials.params))
+        # trans = pb.getTransactions()        
+        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(self.credentials.params))
         DBSession = sessionmaker(bind = engine)    
         session = DBSession()
-        bankbalance = session.query(models.BankBalance).filter_by(UserID = plaidCredentials.userid).one()
+        bankbalance = session.query(models.BankBalance).filter_by(UserID = self.credentials.userid).one()
         bankbalance.KeyBalance = pbalance.chasebalance
         bankbalance.DateTime = datetime.datetime.now()
         session.add(bankbalance)
         session.commit()
-        
+
+    def databaseUpdateTransactions(self):
+        pt = PlaidTransactions()
+        trans = pt.getTransactions()  
         transactions = trans['transactions']
+        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(self.credentials.params))
+        DBSession = sessionmaker(bind = engine)   
         for i in transactions:
+            print(i)
             trans = models.Transactions(**i)
-            # print(trans.category)
+
             category_to_string = ' '.join([str(elem) for elem in trans.category])   
             trans.category = category_to_string
 
@@ -120,19 +133,11 @@ class updateBankBalanceInDatabase():
 
             session = DBSession()
             session.merge(trans)
-            session.commit()
+            session.commit()        
 
-        
-        # return trans
 def main():
-    x = updateBankBalanceInDatabase()
-    x.databaseUpdate()   
-    # transactions = thetrans['transactions']
-    # for i in transactions:
-    #     trans = models.Transactions(**i)
-    #     print(i)
-    #     print('trans.date is {}',trans.date)
-    #     print('trans.amount is {}',trans.amount)
-        
+    x = updateDatabse()
+    x.databaseUpdateBalance()  
+    x.databaseUpdateTransactions()       
 
 main()
