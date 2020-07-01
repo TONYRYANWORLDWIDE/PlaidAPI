@@ -73,24 +73,74 @@ class PlaidBalance():
             return self
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-class updateBankBalanceInDatabase():
 
-    def databaseUpdate(self):
-        gp = getPlaid()
-        plaidCredentials = gp.getCredentials()
+class PlaidTransactions():
+
+    def getTransactions(self):
+        PlaidCredentials = getPlaid()
+        credentials = PlaidCredentials.getCredentials()
+        chase_access_token = credentials.chase_access_token
+
+        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+        end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(+1))
+        print('start date:{} , end date{}'.format(start_date,end_date))
+        try:
+            transactions_response = credentials.client.Transactions.get(credentials.chase_access_token, start_date, end_date, count = 50)
+            return transactions_response
+        except plaid.errors.PlaidError as e:
+            return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
+class updateDatabse():
+
+
+    PlaidCredentials = getPlaid()
+    credentials = PlaidCredentials.getCredentials()
+    
+    def databaseUpdateBalance(self):
+        # gp = getPlaid()
+        # plaidCredentials = gp.getCredentials()
         pb = PlaidBalance()
         pbalance = pb.getBalance() 
-        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(plaidCredentials.params))
+        # trans = pb.getTransactions()        
+        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(self.credentials.params))
         DBSession = sessionmaker(bind = engine)    
         session = DBSession()
-        bankbalance = session.query(models.BankBalance).filter_by(UserID = plaidCredentials.userid).one()
+        bankbalance = session.query(models.BankBalance).filter_by(UserID = self.credentials.userid).one()
         bankbalance.KeyBalance = pbalance.chasebalance
         bankbalance.DateTime = datetime.datetime.now()
         session.add(bankbalance)
         session.commit()
 
+    def databaseUpdateTransactions(self):
+        print('start trans')
+        pt = PlaidTransactions()
+        trans = pt.getTransactions()
+  
+        transactions = trans['transactions']
+        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(self.credentials.params))
+        DBSession = sessionmaker(bind = engine)   
+        for i in transactions:
+            print(i)
+            trans = models.Transactions(**i)
+
+            if trans.category != None:
+                category_to_string = ' '.join([str(elem) for elem in trans.category])   
+                trans.category = category_to_string
+
+            location_to_string = ' '.join([str(elem) for elem in trans.location])   
+            trans.location = location_to_string   
+
+            payment_meta_to_string = ' '.join([str(elem) for elem in trans.payment_meta])   
+            trans.payment_meta = payment_meta_to_string
+
+            trans.payment_meta = ''
+            session = DBSession()
+            session.merge(trans)
+            session.commit()        
+            
+
 def main():
-    x = updateBankBalanceInDatabase()
-    x.databaseUpdate()
+    x = updateDatabse()
+    x.databaseUpdateBalance()  
+    x.databaseUpdateTransactions()       
 
 main()
