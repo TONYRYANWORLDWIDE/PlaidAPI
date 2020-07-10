@@ -45,6 +45,7 @@ class Transactions(Base):
     date = Column(DateTime, nullable = False)
     iso_currency_code = Column(String(55), nullable = True)
     location = Column(String(255), nullable = True)
+    merchant_name = Column(String(255), nullable = True)
     name = Column(String(255), nullable = True)
     payment_channel = Column(String(55), nullable = True)
     payment_meta = Column(String(255), nullable = True)
