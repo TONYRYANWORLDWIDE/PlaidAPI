@@ -81,7 +81,7 @@ class PlaidTransactions():
         credentials = PlaidCredentials.getCredentials()
         chase_access_token = credentials.chase_access_token
 
-        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-7))
         end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(+1))
         print('start date:{} , end date{}'.format(start_date,end_date))
         try:
