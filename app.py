@@ -18,10 +18,10 @@ from flask import render_template
 from flask import request
 from flask import jsonify
 import models
+import ChimeModels
 from pathlib import Path
-class getPlaid():
 
-    
+class getPlaid():
     def __init__(self):
         home = str(Path.home())
         self.credentials_file = os.path.join(home,'Desktop' ,'PlaidAPI' ,'credentials.json')
@@ -49,6 +49,7 @@ class getPlaid():
             self.PLAID_SECRET =  data['codes']['plaid']['PLAID_SECRET']
             self.PLAID_PUBLIC_KEY = data['codes']['plaid']['PLAID_PUBLIC_KEY']
             self.chase_access_token =  data['codes']['plaid']['chase_access_token']
+            self.ChimeToken =  data['codes']['plaid']['ChimeToken']
             self.client = plaid.Client(client_id = self.PLAID_CLIENT_ID, secret=self.PLAID_SECRET,
                             public_key=self.PLAID_PUBLIC_KEY, environment=self.PLAID_ENV, api_version='2019-05-29')
             self.params = urllib.parse.quote_plus("DRIVER={ODBC Driver 17 for SQL Server};"
@@ -79,16 +80,26 @@ class PlaidBalance():
 
 class PlaidTransactions():
 
+    def __init__(self,account):
+        self.account = account
+
     def getTransactions(self):
         PlaidCredentials = getPlaid()
         credentials = PlaidCredentials.getCredentials()
-        chase_access_token = credentials.chase_access_token
+        if self.account == 'Chase':
+            access_token = credentials.chase_access_token
+        elif self.account  =='Chime':
+            access_token = credentials.ChimeToken
+        else:
+             access_token = None
+        # chase_access_token = credentials.chase_access_token
+
 
         start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-7))
         end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(+1))
         print('start date:{} , end date{}'.format(start_date,end_date))
         try:
-            transactions_response = credentials.client.Transactions.get(credentials.chase_access_token, start_date, end_date, count = 50)
+            transactions_response = credentials.client.Transactions.get(access_token, start_date, end_date, count = 50)
             return transactions_response
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
@@ -99,11 +110,8 @@ class updateDatabse():
     credentials = PlaidCredentials.getCredentials()
     
     def databaseUpdateBalance(self):
-        # gp = getPlaid()
-        # plaidCredentials = gp.getCredentials()
         pb = PlaidBalance()
-        pbalance = pb.getBalance() 
-        # trans = pb.getTransactions()        
+        pbalance = pb.getBalance()     
         engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(self.credentials.params))
         DBSession = sessionmaker(bind = engine)    
         session = DBSession()
@@ -113,11 +121,11 @@ class updateDatabse():
         session.add(bankbalance)
         session.commit()
 
-    def databaseUpdateTransactions(self):
+    def databaseUpdateTransactions(self,account):
         print('start trans')
-        pt = PlaidTransactions()
-        trans = pt.getTransactions()
-  
+        print(account)
+        pt = PlaidTransactions(account=account)
+        trans = pt.getTransactions()  
         transactions = trans['transactions']
         engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(self.credentials.params))
         DBSession = sessionmaker(bind = engine)   
@@ -143,7 +151,7 @@ class updateDatabse():
 
 def main():
     x = updateDatabse()
-    x.databaseUpdateBalance()  
-    x.databaseUpdateTransactions()       
+    # x.databaseUpdateBalance()  
+    x.databaseUpdateTransactions(account='Chime')       
 
 main()
