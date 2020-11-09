@@ -8,9 +8,9 @@ import urllib
 import json
 ChimeBase = declarative_base()
 
-class ChimeTransactions(ChimeBase):
+class Transactions(ChimeBase):
     __table_args__ = {"schema":"CMP"}
-    __tablename__ = 'cTransactions'
+    __tablename__ = 'Transactions'
     account_id = Column(String(55), nullable = False)
     account_owner = Column(String(55), nullable = True)
     amount = Column(Float, nullable = False)
