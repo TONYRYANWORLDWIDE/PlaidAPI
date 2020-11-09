@@ -18,10 +18,13 @@ from flask import render_template
 from flask import request
 from flask import jsonify
 import models
+from pathlib import Path
 class getPlaid():
 
+    
     def __init__(self):
-        self.credentials_file = 'C:/Users/tonyr/Desktop/PlaidAPIFinal/credentials.json'
+        home = str(Path.home())
+        self.credentials_file = os.path.join(home,'Desktop' ,'PlaidAPI' ,'credentials.json')
         self.PLAID_CLIENT_ID = ''
         self.PLAID_SECRET = ''
         self.PLAID_PUBLIC_KEY = ''

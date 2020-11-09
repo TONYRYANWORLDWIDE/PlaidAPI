@@ -11,8 +11,10 @@ from flask import render_template
 from flask import request
 from flask import jsonify
 import plaid
+from pathlib import Path
+home = str(Path.home())
 
-credentials_file = 'C:/Users/tonyr/Desktop/PlaidAPIFinal/credentials.json'
+credentials_file = os.path.join(home,'Desktop' ,'PlaidAPI' ,'credentials.json')
 
 def getplaid():
     with open(credentials_file) as json_file:
