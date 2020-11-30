@@ -92,9 +92,6 @@ class PlaidTransactions():
             access_token = credentials.ChimeToken
         else:
              access_token = None
-        # chase_access_token = credentials.chase_access_token
-
-
         start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
         end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(+1))
         print('start date:{} , end date{}'.format(start_date,end_date))
@@ -104,7 +101,6 @@ class PlaidTransactions():
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
 class updateDatabse():
-
 
     PlaidCredentials = getPlaid()
     credentials = PlaidCredentials.getCredentials()
@@ -139,11 +135,9 @@ class updateDatabse():
                     trans.category = category_to_string
 
                 location_to_string = ' '.join([str(elem) for elem in trans.location])   
-                trans.location = location_to_string   
-
+                trans.location = location_to_string
                 payment_meta_to_string = ' '.join([str(elem) for elem in trans.payment_meta])   
                 trans.payment_meta = payment_meta_to_string
-
                 trans.payment_meta = ''
                 session = DBSession()
                 session.merge(trans)
@@ -152,27 +146,22 @@ class updateDatabse():
             for i in transactions:
                 print(i)
                 trans = ChimeModels.Transactions(**i)
-
                 if trans.category != None:
                     category_to_string = ' '.join([str(elem) for elem in trans.category])   
                     trans.category = category_to_string
 
                 location_to_string = ' '.join([str(elem) for elem in trans.location])   
-                trans.location = location_to_string   
-
+                trans.location = location_to_string
                 payment_meta_to_string = ' '.join([str(elem) for elem in trans.payment_meta])   
                 trans.payment_meta = payment_meta_to_string
-
                 trans.payment_meta = ''
                 session = DBSession()
                 session.merge(trans)
-                session.commit()
-                    
-            
+                session.commit()            
 
 def main():
     x = updateDatabse()
-    # x.databaseUpdateBalance()  
+    x.databaseUpdateBalance()  
     x.databaseUpdateTransactions(account='Chime')       
 
 main()
