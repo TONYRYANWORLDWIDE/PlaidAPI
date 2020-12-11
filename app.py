@@ -20,6 +20,11 @@ from flask import jsonify
 import models
 import ChimeModels
 from pathlib import Path
+from sqlalchemy import inspect
+import requests
+
+
+
 
 class getPlaid():
     def __init__(self):
@@ -117,6 +122,31 @@ class updateDatabse():
         session.add(bankbalance)
         session.commit()
 
+    # def object_as_dict(self,obj):
+
+    #     return {c.key: getattr(obj, c.key)
+    #         for c in inspect(obj).mapper.column_attrs}
+
+    
+    def object_as_dict(self,obj): 
+        c = {}       
+        for x in inspect(obj).mapper.column_attrs:
+            c[x.key] = getattr(obj, x.key)
+
+        for key, value in c.items():
+            # if value == "null":
+            if value is None:
+                c[key] = ""  
+            elif value == False:
+                c[key] = "False"
+
+
+   
+        return c
+            
+
+
+
     def databaseUpdateTransactions(self,account):
         print('start trans')
         print(account)
@@ -127,9 +157,9 @@ class updateDatabse():
         DBSession = sessionmaker(bind = engine)   
         if account == 'Chase':
             for i in transactions:
-                print(i)
-                trans = models.Transactions(**i)
-
+                # print(i)
+                trans = models.Transactions(**i)            
+                
                 if trans.category != None:
                     category_to_string = ' '.join([str(elem) for elem in trans.category])   
                     trans.category = category_to_string
@@ -139,8 +169,21 @@ class updateDatabse():
                 payment_meta_to_string = ' '.join([str(elem) for elem in trans.payment_meta])   
                 trans.payment_meta = payment_meta_to_string
                 trans.payment_meta = ''
+                trandict = self.object_as_dict(trans)
+                tranjson = json.dumps(trandict)
+                transaction_id = trandict['transaction_id']
+                baseurl = url = 'http://localhost:64314/api/Transactions/'
+                url = baseurl + transaction_id
+                headers = {"Content-Type" : "application/json"}
+                print(url)
+                req = requests.put(url = url, json =tranjson, headers = headers)              
+                # print(trandict)
+                print(tranjson)
+                print (req.status_code)
+             
+
                 session = DBSession()
-                session.merge(trans)
+                session.merge(trans)                
                 session.commit()
         elif account == 'Chime':
             for i in transactions:
@@ -161,7 +204,7 @@ class updateDatabse():
 
 def main():
     x = updateDatabse()
-    x.databaseUpdateBalance()  
-    x.databaseUpdateTransactions(account='Chime')       
+    # x.databaseUpdateBalance()  
+    x.databaseUpdateTransactions(account='Chase')       
 
 main()
