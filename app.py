@@ -200,8 +200,8 @@ class updateDatabse():
                 tranjson2 = json.loads(tranjson)
                 transactionid = trandict['transaction_id']
                 accountid = trandict['account_id']
-                apibaseurl = 'http://localhost:64314/api/TransactionsCMP/'
-                # apibaseurl = 'https://monthlybillswebapitr.azurewebsites.net/api/Transactions/'
+                # apibaseurl = 'http://localhost:64314/api/TransactionsCMP/'
+                apibaseurl = 'https://monthlybillswebapitr.azurewebsites.net/api/TransactionsCMP/'
 
                 # print(tranjson2)
                
@@ -221,6 +221,6 @@ class updateDatabse():
 def main():
     x = updateDatabse()
     x.databaseUpdateBalance()  
-    x.databaseUpdateTransactions(account='Chase')       
+    x.databaseUpdateTransactions(account='Chime')       
 
 main()
