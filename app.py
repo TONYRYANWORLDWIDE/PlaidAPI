@@ -138,14 +138,8 @@ class updateDatabse():
             if value is None:
                 c[key] = ""  
             elif value == False:
-                c[key] = "False"
-
-
-   
+                c[key] = "False"   
         return c
-            
-
-
 
     def databaseUpdateTransactions(self,account):
         print('start trans')
@@ -157,9 +151,7 @@ class updateDatabse():
         DBSession = sessionmaker(bind = engine)   
         if account == 'Chase':
             for i in transactions:
-                # print(i)
-                trans = models.Transactions(**i)            
-                
+                trans = models.Transactions(**i)                
                 if trans.category != None:
                     category_to_string = ' '.join([str(elem) for elem in trans.category])   
                     trans.category = category_to_string
@@ -180,8 +172,6 @@ class updateDatabse():
                 # print(trandict)
                 print(tranjson)
                 print (req.status_code)
-             
-
                 session = DBSession()
                 session.merge(trans)                
                 session.commit()
