@@ -137,8 +137,10 @@ class updateDatabse():
             # if value == "null":
             if value is None:
                 c[key] = ""  
-            elif value == False:
-                c[key] = "False"   
+            if value == False:
+                c[key] = "False"
+            if value == True:
+                c[key] = "True"     
         return c
 
     def databaseUpdateTransactions(self,account):
@@ -163,18 +165,28 @@ class updateDatabse():
                 trans.payment_meta = ''
                 trandict = self.object_as_dict(trans)
                 tranjson = json.dumps(trandict)
-                transaction_id = trandict['transaction_id']
-                baseurl = url = 'http://localhost:64314/api/Transactions/'
-                url = baseurl + transaction_id
+                tranjson2 = json.loads(tranjson)
+                transactionid = trandict['transaction_id']
+                accountid = trandict['account_id']
+                apibaseurl = 'http://localhost:64314/api/Transactions/'
+                url = apibaseurl + transactionid + "/" + accountid
                 headers = {"Content-Type" : "application/json"}
                 print(url)
-                req = requests.put(url = url, json =tranjson, headers = headers)              
-                # print(trandict)
-                print(tranjson)
+                req = requests.put(url = url, json =tranjson2, headers = headers)    
+                # req2 = requests.Request('PUT', url = url, json = tranjson2,headers = headers)
+                print("req2json")
+                # print(req2.json)                
+                # print(tranjson[0])
+                # print(tranjson['account_id'])
+                # print(req2.headers)
+                # print(req2.url)
+                # print(req2.data)
+                print(trandict)
+                # print(tranjson)
                 print (req.status_code)
-                session = DBSession()
-                session.merge(trans)                
-                session.commit()
+                # session = DBSession()
+                # session.merge(trans)                
+                # session.commit()
         elif account == 'Chime':
             for i in transactions:
                 print(i)
@@ -194,7 +206,7 @@ class updateDatabse():
 
 def main():
     x = updateDatabse()
-    # x.databaseUpdateBalance()  
+    x.databaseUpdateBalance()  
     x.databaseUpdateTransactions(account='Chase')       
 
 main()
