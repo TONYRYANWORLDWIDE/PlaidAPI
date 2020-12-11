@@ -37,7 +37,10 @@ pylint==2.4.4
 pyodbc==4.0.28
 pyparsing==2.4.7
 python-dateutil==2.8.1
+python-dotenv==0.15.0
 pytz==2020.1
+pywin32==228
+pyzmq==19.0.2
 requests==2.20.0
 six==1.13.0
 sodapy==2.1.0
