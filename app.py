@@ -101,7 +101,7 @@ class PlaidTransactions():
         end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(+1))
         print('start date:{} , end date{}'.format(start_date,end_date))
         try:
-            transactions_response = credentials.client.Transactions.get(access_token, start_date, end_date, count = 5)
+            transactions_response = credentials.client.Transactions.get(access_token, start_date, end_date, count = 50)
             return transactions_response
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
@@ -130,10 +130,10 @@ class updateDatabse():
         for key, value in c.items():
             if value is None:
                 c[key] = ""  
-            if value == False:
-                c[key] = "False"
-            if value == True:
-                c[key] = "True"     
+            # if value == False:
+            #     c[key] = False
+            # if value == True:
+            #     c[key] = True    
         return c
 
     def databaseUpdateTransactions(self,account):
@@ -195,8 +195,10 @@ class updateDatabse():
                 payment_meta_to_string = ' '.join([str(elem) for elem in trans.payment_meta])   
                 trans.payment_meta = payment_meta_to_string
                 trans.payment_meta = ''
+
                 trandict = self.object_as_dict(trans)
                 tranjson = json.dumps(trandict)
+
                 tranjson2 = json.loads(tranjson)
                 transactionid = trandict['transaction_id']
                 accountid = trandict['account_id']
@@ -205,7 +207,7 @@ class updateDatabse():
 
                 # print(tranjson2)
                
-                url = apibaseurl + transactionid + "/" + accountid
+                url = apibaseurl #+ transactionid + "/" + accountid
                 headers = {"Content-Type" : "application/json"}
                 print(url)
                 req = requests.put(url = url, json =tranjson2, headers = headers)    
