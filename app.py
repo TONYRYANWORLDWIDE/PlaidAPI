@@ -23,9 +23,6 @@ from pathlib import Path
 from sqlalchemy import inspect
 import requests
 
-
-
-
 class getPlaid():
     def __init__(self):
         self.credentials_file = 'credentials.json'
@@ -43,7 +40,8 @@ class getPlaid():
     def getCredentials(self):
         self.PLAID_ENV = os.getenv('PLAID_ENV', 'development')
         with open(self.credentials_file) as json_file:
-            data = json.load(json_file)
+            data = json.load(json_file)    
+            self.apibaseurl = data['codes']['apibaseurl']        
             self.server =   data['codes']['connectionstring']['server']
             self.user =     data['codes']['connectionstring']['user']
             self.password = data['codes']['connectionstring']['password']
@@ -70,7 +68,6 @@ class PlaidBalance():
     def getBalance(self):
         PlaidCredentials = getPlaid()
         credentials = PlaidCredentials.getCredentials()
-        chase_access_token = credentials.chase_access_token
         try:
             balance_response = credentials.client.Accounts.balance.get(credentials.chase_access_token)
             balances = balance_response['accounts']
@@ -128,11 +125,7 @@ class updateDatabse():
 
         for key, value in c.items():
             if value is None:
-                c[key] = ""  
-            # if value == False:
-            #     c[key] = False
-            # if value == True:
-            #     c[key] = True    
+                c[key] = ""    
         return c
 
     def databaseUpdateTransactions(self,account):
@@ -140,9 +133,7 @@ class updateDatabse():
         print(account)
         pt = PlaidTransactions(account=account)
         trans = pt.getTransactions()  
-        transactions = trans['transactions']
-        engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(self.credentials.params))
-        DBSession = sessionmaker(bind = engine)   
+        transactions = trans['transactions']        
         if account == 'Chase':
             for i in transactions:
                 trans = models.Transactions(**i)                
@@ -161,26 +152,20 @@ class updateDatabse():
                 transactionid = trandict['transaction_id']
                 accountid = trandict['account_id']
                 # apibaseurl = 'http://localhost:64314/api/Transactions/'
-                apibaseurl = 'https://monthlybillswebapitr.azurewebsites.net/api/Transactions/'
-                print(apibaseurl)
+                # apibaseurl = 'https://monthlybillswebapitr.azurewebsites.net/api/Transactions/'
+                apibaseurl = self.credentials.apibaseurl 
+                print("baseurl: {0}".format(apibaseurl))
                 url = apibaseurl + transactionid + "/" + accountid
                 headers = {"Content-Type" : "application/json"}
-                print(url)
+                print("url: {0}".format(url))
                 req = requests.put(url = url, json =tranjson2, headers = headers)    
                 # req2 = requests.Request('PUT', url = url, json = tranjson2,headers = headers)
                 print("req2json")
-                # print(req2.json)                
-                # print(tranjson[0])
-                # print(tranjson['account_id'])
-                # print(req2.headers)
-                # print(req2.url)
-                # print(req2.data)
+
                 print(trandict)
-                # print(tranjson)
+
                 print (req.status_code)
-                # session = DBSession()
-                # session.merge(trans)                
-                # session.commit()
+
         elif account == 'Chime':
             for i in transactions:               
                 trans = ChimeModels.Transactions(**i)
@@ -194,30 +179,18 @@ class updateDatabse():
                 payment_meta_to_string = ' '.join([str(elem) for elem in trans.payment_meta])   
                 trans.payment_meta = payment_meta_to_string
                 trans.payment_meta = ''
-
                 trandict = self.object_as_dict(trans)
                 tranjson = json.dumps(trandict)
-
                 tranjson2 = json.loads(tranjson)
                 transactionid = trandict['transaction_id']
                 accountid = trandict['account_id']
-                # apibaseurl = 'http://localhost:64314/api/TransactionsCMP/'
-                apibaseurl = 'https://monthlybillswebapitr.azurewebsites.net/api/TransactionsCMP/'
-
-                # print(tranjson2)
-               
+                # apibaseurl = 'http://localhost:64314/api/TransactionsCMP/'                
+                apibaseurl = self.credentials.apibaseurl
+                print("baseurl: {0}".format(apibaseurl))              
                 url = apibaseurl #+ transactionid + "/" + accountid
                 headers = {"Content-Type" : "application/json"}
-                print(url)
                 req = requests.put(url = url, json =tranjson2, headers = headers)    
-                req2 = requests.Request('PUT', url = url, json = tranjson2,headers = headers)
-                print(req.status_code)
-                print("req2json")
-                print(req2.json) 
-
-                # session = DBSession()
-                # session.merge(trans)
-                # session.commit()            
+                req2 = requests.Request('PUT', url = url, json = tranjson2,headers = headers)          
 
 def main():
     x = updateDatabse()
