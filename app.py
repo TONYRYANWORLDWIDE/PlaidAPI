@@ -129,12 +129,10 @@ class updateDatabse():
         return c
 
     def databaseUpdateTransactions(self,account):
-        print('start trans')
-        print(account)
         pt = PlaidTransactions(account=account)
         trans = pt.getTransactions()  
         transactions = trans['transactions']        
-        if account == 'Chase':
+        if account == 'Chase': # Still need to write API for this transactions table
             for i in transactions:
                 trans = models.Transactions(**i)                
                 if trans.category != None:
@@ -154,17 +152,9 @@ class updateDatabse():
                 # apibaseurl = 'http://localhost:64314/api/Transactions/'
                 # apibaseurl = 'https://monthlybillswebapitr.azurewebsites.net/api/Transactions/'
                 apibaseurl = self.credentials.apibaseurl 
-                print("baseurl: {0}".format(apibaseurl))
-                url = apibaseurl + transactionid + "/" + accountid
                 headers = {"Content-Type" : "application/json"}
-                print("url: {0}".format(url))
-                req = requests.put(url = url, json =tranjson2, headers = headers)    
-                # req2 = requests.Request('PUT', url = url, json = tranjson2,headers = headers)
-                print("req2json")
-
-                print(trandict)
-
-                print (req.status_code)
+                req = requests.put(url = apibaseurl, json =tranjson2, headers = headers)    
+                # req2 = requests.Request('PUT', url = apibaseurl, json = tranjson2,headers = headers)
 
         elif account == 'Chime':
             for i in transactions:               
@@ -185,12 +175,10 @@ class updateDatabse():
                 transactionid = trandict['transaction_id']
                 accountid = trandict['account_id']
                 # apibaseurl = 'http://localhost:64314/api/TransactionsCMP/'                
-                apibaseurl = self.credentials.apibaseurl
-                print("baseurl: {0}".format(apibaseurl))              
-                url = apibaseurl #+ transactionid + "/" + accountid
+                apibaseurl = self.credentials.apibaseurl            
                 headers = {"Content-Type" : "application/json"}
-                req = requests.put(url = url, json =tranjson2, headers = headers)    
-                req2 = requests.Request('PUT', url = url, json = tranjson2,headers = headers)          
+                req = requests.put(url = apibaseurl, json =tranjson2, headers = headers)    
+                req2 = requests.Request('PUT', url = apibaseurl, json = tranjson2,headers = headers)          
 
 def main():
     x = updateDatabse()
