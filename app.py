@@ -28,8 +28,7 @@ import requests
 
 class getPlaid():
     def __init__(self):
-        home = str(Path.home())
-        self.credentials_file = os.path.join(home,'Desktop' ,'PlaidAPI' ,'credentials.json')
+        self.credentials_file = 'credentials.json'
         self.PLAID_CLIENT_ID = ''
         self.PLAID_SECRET = ''
         self.PLAID_PUBLIC_KEY = ''
