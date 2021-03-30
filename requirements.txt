@@ -32,7 +32,7 @@ pathlib==1.0.1
 pickleshare==0.7.5
 plaid-python==3.4.0
 prompt-toolkit==3.0.7
-Pygments==2.6.1
+Pygments==2.7.4
 pylint==2.4.4
 pyodbc==4.0.28
 pyparsing==2.4.7
