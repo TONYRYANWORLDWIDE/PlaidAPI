@@ -24,7 +24,7 @@ from pathlib import Path
 class getPlaid():
     def __init__(self):
         home = str(Path.home())
-        self.credentials_file = os.path.join(home,'Desktop' ,'PlaidAPI' ,'credentials.json')
+        self.credentials_file = os.path.join(home,'Desktop' ,'PlaidAPIFinal' ,'credentials.json')
         self.PLAID_CLIENT_ID = ''
         self.PLAID_SECRET = ''
         self.PLAID_PUBLIC_KEY = ''
@@ -92,11 +92,11 @@ class PlaidTransactions():
             access_token = credentials.ChimeToken
         else:
              access_token = None
-        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-150))
         end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(+1))
         print('start date:{} , end date{}'.format(start_date,end_date))
         try:
-            transactions_response = credentials.client.Transactions.get(access_token, start_date, end_date, count = 50)
+            transactions_response = credentials.client.Transactions.get(access_token, start_date, end_date, count = 500)
             return transactions_response
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
@@ -161,7 +161,7 @@ class updateDatabse():
 
 def main():
     x = updateDatabse()
-    x.databaseUpdateBalance()  
+    # x.databaseUpdateBalance()  
     x.databaseUpdateTransactions(account='Chime')       
 
 main()
