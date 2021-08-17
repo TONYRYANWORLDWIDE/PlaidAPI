@@ -60,24 +60,32 @@ class getPlaid():
         return self    
 class PlaidBalance():
     
-    def __init__(self):
+    def __init__(self,account):
         self.chasebalance = 0
+        self.account = account
 
     def getBalance(self):
         PlaidCredentials = getPlaid()
         credentials = PlaidCredentials.getCredentials()
-        chase_access_token = credentials.chase_access_token
+        if self.account == 'Chase':
+            access_token = credentials.chase_access_token
+        elif self.account  =='Chime':
+            access_token = credentials.ChimeToken
+        else:
+             access_token = None
         try:
-            balance_response = credentials.client.Accounts.balance.get(credentials.chase_access_token)
+            balance_response = credentials.client.Accounts.balance.get(access_token)
             balances = balance_response['accounts']
             for x in balances:
+                balance = x['balances']['available']
                 if x['name'] == 'TOTAL CHECKING':
-                    self.chasebalance = x['balances']['available']
-                    print(self.chasebalance)
+                    self.chasebalance = balance
+                print(x['name'])
+                print(balance)
             return self
         except plaid.errors.PlaidError as e:
             return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-
+    
 class PlaidTransactions():
 
     def __init__(self,account):
@@ -160,6 +168,8 @@ class updateDatabse():
                 session.commit()            
 
 def main():
+    pb = PlaidBalance(account = "Chime")
+  
     x = updateDatabse()
     x.databaseUpdateBalance()  
     x.databaseUpdateTransactions(account='Chime')       
