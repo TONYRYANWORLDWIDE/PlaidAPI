@@ -107,7 +107,7 @@ class updateDatabse():
     
     def databaseUpdateBalance(self):
         pb = PlaidBalance()
-        pbalance = pb.getBalance()     
+        pbalance = pb.getBalance() 
         engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(self.credentials.params))
         DBSession = sessionmaker(bind = engine)    
         session = DBSession()
@@ -161,7 +161,7 @@ class updateDatabse():
 
 def main():
     x = updateDatabse()
-    # x.databaseUpdateBalance()  
+    x.databaseUpdateBalance()  
     x.databaseUpdateTransactions(account='Chase')      
 
 main()
