@@ -92,7 +92,7 @@ class PlaidTransactions():
             access_token = credentials.ChimeToken
         else:
              access_token = None
-        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-150))
+        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
         end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(+1))
         print('start date:{} , end date{}'.format(start_date,end_date))
         try:
@@ -162,6 +162,6 @@ class updateDatabse():
 def main():
     x = updateDatabse()
     # x.databaseUpdateBalance()  
-    x.databaseUpdateTransactions(account='Chime')       
+    x.databaseUpdateTransactions(account='Chase')      
 
 main()
