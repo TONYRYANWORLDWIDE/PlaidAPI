@@ -25,7 +25,7 @@ lazy-object-proxy==1.4.3
 MarkupSafe==0.23
 matplotlib==3.2.2
 mccabe==0.6.1
-numpy==1.19.0
+numpy==1.22.0
 pandas==1.0.5
 parso==0.7.1
 pathlib==1.0.1
